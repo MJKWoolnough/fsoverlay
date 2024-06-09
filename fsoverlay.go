@@ -23,6 +23,14 @@ func (o Overlay) Open(path string) (fs.File, error) {
 		return f, err
 	}
 
+	if firstError == nil {
+		return nil, &fs.PathError{
+			Op:   "open",
+			Path: path,
+			Err:  ErrNoFSs,
+		}
+	}
+
 	return nil, firstError
 }
 
@@ -42,5 +50,18 @@ func (o Overlay) ReadFile(name string) ([]byte, error) {
 		return data, err
 	}
 
+	if firstError == nil {
+		return nil, &fs.PathError{
+			Op:   "readfile",
+			Path: name,
+			Err:  ErrNoFSs,
+		}
+	}
+
 	return nil, firstError
 }
+
+// Errors.
+var (
+	ErrNoFSs = errors.New("no overlays")
+)
