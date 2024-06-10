@@ -58,4 +58,24 @@ func join(base, name string) (string, error) {
 	return combined, nil
 }
 
+func (o OS) ReadLink(name string) (string, error) {
+	pname, err := join(string(o), name)
+	if err != nil {
+		return "", &fs.PathError{
+			Op:   "readlink",
+			Path: name,
+			Err:  err,
+		}
+	}
+
+	link, err := os.Readlink(pname)
+	if err != nil {
+		err.(*os.PathError).Path = name
+
+		return "", err
+	}
+
+	return link, nil
+}
+
 var ErrEmptyRoot = errors.New("invalid root directory")
