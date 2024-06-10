@@ -111,6 +111,29 @@ func (o Overlay) Readlink(name string) (string, error) {
 	}
 }
 
+type lstat interface {
+	LStat(string) (fs.FileInfo, error)
+}
+
+func (o Overlay) LStat(name string) (fs.FileInfo, error) {
+	for _, ofs := range o {
+		if rl, ok := ofs.(lstat); ok {
+			fi, err := rl.LStat(name)
+			if errors.Is(err, fs.ErrNotExist) {
+				continue
+			}
+
+			return fi, err
+		}
+	}
+
+	return nil, &fs.PathError{
+		Op:   "lstat",
+		Path: name,
+		Err:  fs.ErrNotExist,
+	}
+}
+
 // Errors.
 var (
 	ErrNoFSs = errors.New("no overlays")
