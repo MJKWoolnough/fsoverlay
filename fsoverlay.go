@@ -8,84 +8,54 @@ import (
 type Overlay []fs.FS
 
 func (o Overlay) Open(path string) (fs.File, error) {
-	var firstError error
-
 	for _, ofs := range o {
 		f, err := ofs.Open(path)
 		if errors.Is(err, fs.ErrNotExist) {
-			if firstError == nil {
-				firstError = err
-			}
-
 			continue
 		}
 
 		return f, err
 	}
 
-	if firstError == nil {
-		return nil, &fs.PathError{
-			Op:   "open",
-			Path: path,
-			Err:  ErrNoFSs,
-		}
+	return nil, &fs.PathError{
+		Op:   "open",
+		Path: path,
+		Err:  fs.ErrNotExist,
 	}
-
-	return nil, firstError
 }
 
 func (o Overlay) ReadFile(name string) ([]byte, error) {
-	var firstError error
-
 	for _, ofs := range o {
 		data, err := fs.ReadFile(ofs, name)
 		if errors.Is(err, fs.ErrNotExist) {
-			if firstError == nil {
-				firstError = err
-			}
-
 			continue
 		}
 
 		return data, err
 	}
 
-	if firstError == nil {
-		return nil, &fs.PathError{
-			Op:   "readfile",
-			Path: name,
-			Err:  ErrNoFSs,
-		}
+	return nil, &fs.PathError{
+		Op:   "readfile",
+		Path: name,
+		Err:  fs.ErrNotExist,
 	}
-
-	return nil, firstError
 }
 
 func (o Overlay) Stat(name string) (fs.FileInfo, error) {
-	var firstError error
-
 	for _, ofs := range o {
 		fi, err := fs.Stat(ofs, name)
 		if errors.Is(err, fs.ErrNotExist) {
-			if firstError == nil {
-				firstError = err
-			}
-
 			continue
 		}
 
 		return fi, err
 	}
 
-	if firstError == nil {
-		return nil, &fs.PathError{
-			Op:   "stat",
-			Path: name,
-			Err:  ErrNoFSs,
-		}
+	return nil, &fs.PathError{
+		Op:   "stat",
+		Path: name,
+		Err:  fs.ErrNotExist,
 	}
-
-	return nil, firstError
 }
 
 type readLink interface {
