@@ -103,8 +103,3 @@ func (o Overlay) LStat(name string) (fs.FileInfo, error) {
 		Err:  fs.ErrNotExist,
 	}
 }
-
-// Errors.
-var (
-	ErrNoFSs = errors.New("no overlays")
-)
