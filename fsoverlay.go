@@ -88,6 +88,29 @@ func (o Overlay) Stat(name string) (fs.FileInfo, error) {
 	return nil, firstError
 }
 
+type readLink interface {
+	Readlink(string) (string, error)
+}
+
+func (o Overlay) Readlink(name string) (string, error) {
+	for _, ofs := range o {
+		if rl, ok := ofs.(readLink); ok {
+			link, err := rl.Readlink(name)
+			if errors.Is(err, fs.ErrNotExist) {
+				continue
+			}
+
+			return link, err
+		}
+	}
+
+	return "", &fs.PathError{
+		Op:   "readlink",
+		Path: name,
+		Err:  fs.ErrNotExist,
+	}
+}
+
 // Errors.
 var (
 	ErrNoFSs = errors.New("no overlays")
