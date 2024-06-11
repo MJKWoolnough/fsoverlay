@@ -1,6 +1,7 @@
 package fsoverlay
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -49,4 +50,18 @@ func createTestOS(t *testing.T) (OS, string, string, string) {
 	}
 
 	return OS(tmp), testDir, testFile, testSymlink
+}
+
+func TestOSOpen(t *testing.T) {
+	tmp, _, testFile, testSymlink := createTestOS(t)
+
+	for n, filename := range [...]string{testFile, testSymlink} {
+		if f, err := tmp.Open(filename); err != nil {
+			t.Errorf("test %d: unexpected error opening file: %s", n+1, err)
+		} else if contents, err := io.ReadAll(f); err != nil {
+			t.Errorf("test %d: error reading file contents: %s", n+1, err)
+		} else if readContents := string(contents); readContents != testContents {
+			t.Errorf("test %d: expected to read %q, read %q", n+1, testContents, readContents)
+		}
+	}
 }
