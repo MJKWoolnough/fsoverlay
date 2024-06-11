@@ -77,3 +77,15 @@ func TestOSReadFile(t *testing.T) {
 		}
 	}
 }
+
+func TestOSReadDir(t *testing.T) {
+	tmp, testDir, testFile, testSymlink := createTestOS(t)
+
+	if entries, err := tmp.ReadDir(testDir); err != nil {
+		t.Errorf("unexpected error during ReadDir: %s", err)
+	} else if len(entries) != 2 {
+		t.Errorf("expecting to read 2 entries, got %d", len(entries))
+	} else if e1, e2, t1, t2 := entries[0].Name(), entries[1].Name(), filepath.Base(testFile), filepath.Base(testSymlink); e1 != t1 || e2 != t2 {
+		t.Errorf("expecting to read []string{%q, %q}, read []string{%q, %q}", t1, t2, e1, e2)
+	}
+}
