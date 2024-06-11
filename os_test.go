@@ -65,3 +65,15 @@ func TestOSOpen(t *testing.T) {
 		}
 	}
 }
+
+func TestOSReadFile(t *testing.T) {
+	tmp, _, testFile, testSymlink := createTestOS(t)
+
+	for n, filename := range [...]string{testFile, testSymlink} {
+		if contents, err := tmp.ReadFile(filename); err != nil {
+			t.Errorf("test %d: error reading file contents: %s", n+1, err)
+		} else if readContents := string(contents); readContents != testContents {
+			t.Errorf("test %d: expected to read %q, read %q", n+1, testContents, readContents)
+		}
+	}
+}
