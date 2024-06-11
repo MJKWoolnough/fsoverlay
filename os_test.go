@@ -104,3 +104,23 @@ func TestOSStat(t *testing.T) {
 		}
 	}
 }
+
+func TestOSLStat(t *testing.T) {
+	tmp, _, testFile, testSymlink := createTestOS(t)
+
+	if fi, err := tmp.LStat(testFile); err != nil {
+		t.Errorf("test %d: error reading file contents: %s", 1, err)
+	} else if fn, tn := fi.Name(), filepath.Base(testFile); fn != tn {
+		t.Errorf("test %d: expected to stat file %s, got %s", 1, tn, fn)
+	} else if m := fi.Mode(); m&fs.ModePerm != m {
+		t.Errorf("test %d: expected to stat file", 1)
+	}
+
+	if fi, err := tmp.LStat(testSymlink); err != nil {
+		t.Errorf("test %d: error reading file contents: %s", 2, err)
+	} else if fn, tn := fi.Name(), filepath.Base(testSymlink); fn != tn {
+		t.Errorf("test %d: expected to stat file %s, got %s", 2, tn, fn)
+	} else if m := fi.Mode(); m&fs.ModeSymlink == 0 {
+		t.Errorf("test %d: expected to stat symlink", 2)
+	}
+}
