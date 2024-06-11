@@ -5,7 +5,18 @@ import (
 	"io/fs"
 	"os"
 	"path"
+	"reflect"
 )
+
+func DirFS2OS(os fs.FS) fs.FS {
+	v := reflect.ValueOf(os)
+
+	if t := v.Type(); t.PkgPath() != "os" || t.Name() != "dirFS" {
+		return os
+	}
+
+	return OS(v.String())
+}
 
 type OS string
 
