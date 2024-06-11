@@ -72,7 +72,7 @@ func join(base, name string) (string, error) {
 	return combined, nil
 }
 
-func (o OS) ReadLink(name string) (string, error) {
+func (o OS) Readlink(name string) (string, error) {
 	pname, err := join(string(o), name)
 	if err != nil {
 		return "", &fs.PathError{
