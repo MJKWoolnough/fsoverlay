@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"reflect"
+	"strings"
 )
 
 func DirFS2OS(os fs.FS) fs.FS {
@@ -62,7 +63,9 @@ func join(base, name string) (string, error) {
 	}
 
 	combined := path.Join(base, name)
-	if !fs.ValidPath(combined) {
+	toCheck := strings.TrimPrefix(combined, "/")
+
+	if !fs.ValidPath(toCheck) {
 		return "", fs.ErrInvalid
 	}
 
