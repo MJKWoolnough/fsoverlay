@@ -2,6 +2,7 @@ package fsoverlay
 
 import (
 	"io"
+	"io/fs"
 	"os"
 	"path/filepath"
 	"testing"
@@ -87,5 +88,19 @@ func TestOSReadDir(t *testing.T) {
 		t.Errorf("expecting to read 2 entries, got %d", len(entries))
 	} else if e1, e2, t1, t2 := entries[0].Name(), entries[1].Name(), filepath.Base(testFile), filepath.Base(testSymlink); e1 != t1 || e2 != t2 {
 		t.Errorf("expecting to read []string{%q, %q}, read []string{%q, %q}", t1, t2, e1, e2)
+	}
+}
+
+func TestOSStat(t *testing.T) {
+	tmp, _, testFile, testSymlink := createTestOS(t)
+
+	for n, filename := range [...]string{testFile, testSymlink} {
+		if fi, err := tmp.Stat(filename); err != nil {
+			t.Errorf("test %d: error reading file contents: %s", n+1, err)
+		} else if fn, tn := fi.Name(), filepath.Base(filename); fn != tn {
+			t.Errorf("test %d: expected to stat file %s, got %s", n+1, tn, fn)
+		} else if m := fi.Mode(); m&fs.ModePerm != m {
+			t.Errorf("test %d: expected to stat file", n+1)
+		}
 	}
 }
