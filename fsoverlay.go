@@ -66,14 +66,12 @@ type readLink interface {
 
 func (o Overlay) Readlink(name string) (string, error) {
 	for _, ofs := range o {
-		if rl, ok := ofs.(readLink); ok {
-			link, err := rl.Readlink(name)
-			if errors.Is(err, fs.ErrNotExist) {
-				continue
-			}
-
-			return link, err
+		target, err := Readlink(ofs, name)
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
 		}
+
+		return target, err
 	}
 
 	return "", &fs.PathError{
