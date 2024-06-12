@@ -3,6 +3,8 @@ package fsoverlay
 import (
 	"errors"
 	"io/fs"
+	"path"
+	"time"
 )
 
 type Overlay []fs.FS
@@ -102,4 +104,58 @@ func (o Overlay) LStat(name string) (fs.FileInfo, error) {
 		Path: name,
 		Err:  fs.ErrNotExist,
 	}
+}
+
+type deAsFI struct {
+	fs.DirEntry
+}
+
+func (deAsFI) Size() int64 {
+	return -1
+}
+
+func (d deAsFI) Mode() fs.FileMode {
+	return d.Type()
+}
+
+func (deAsFI) ModTime() time.Time {
+	return time.Time{}
+}
+
+func (d deAsFI) Sys() any {
+	return d.DirEntry
+}
+
+func Lstat(f fs.FS, name string) (fs.FileInfo, error) {
+	if lf, ok := f.(lstat); ok {
+		return lf.LStat(name)
+	}
+
+	dir, base := path.Split(name)
+
+	dirEntries, err := fs.ReadDir(f, dir)
+	if err != nil {
+		return nil, &fs.PathError{Op: "lstat", Path: name, Err: err}
+	}
+
+	for _, de := range dirEntries {
+		if de.Name() == base {
+			if de.Type()&fs.ModeSymlink != 0 {
+				if fi, ok := de.(fs.FileInfo); ok {
+					return fi, nil
+				}
+
+				return deAsFI{DirEntry: de}, nil
+			} else {
+				fi, err := fs.Stat(f, name)
+				if err != nil {
+					err = &fs.PathError{Op: "lstat", Path: name, Err: err}
+				}
+
+				return fi, err
+			}
+		}
+	}
+
+	return nil, &fs.PathError{Op: "lstat", Path: name, Err: fs.ErrNotExist}
 }
