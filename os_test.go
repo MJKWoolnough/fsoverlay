@@ -128,7 +128,7 @@ func TestOSLStat(t *testing.T) {
 func TestOSReadLink(t *testing.T) {
 	tmp, _, testFile, testSymlink := createTestOS(t)
 
-	if target, err := tmp.ReadLink(testSymlink); err != nil {
+	if target, err := tmp.Readlink(testSymlink); err != nil {
 		t.Errorf("unexpected error readlink symlink target: %s", err)
 	} else if expectedTarget := filepath.Join(string(tmp), testFile); target != expectedTarget {
 		t.Errorf("expecting to read link %q, got %q", expectedTarget, target)
