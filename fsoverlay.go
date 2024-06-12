@@ -157,3 +157,15 @@ func LStat(f fs.FS, name string) (fs.FileInfo, error) {
 
 	return nil, &fs.PathError{Op: "lstat", Path: name, Err: fs.ErrNotExist}
 }
+
+func Readlink(f fs.FS, name string) (string, error) {
+	if rl, ok := f.(readLink); ok {
+		return rl.Readlink(name)
+	}
+
+	return "", &fs.PathError{
+		Op:   "readlink",
+		Path: name,
+		Err:  fs.ErrInvalid,
+	}
+}
