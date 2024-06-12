@@ -131,7 +131,7 @@ func LStat(f fs.FS, name string) (fs.FileInfo, error) {
 
 	dirEntries, err := fs.ReadDir(f, dir)
 	if err != nil {
-		return nil, &fs.PathError{Op: "lstat", Path: name, Err: err}
+		return nil, &fs.PathError{Op: "lstat", Path: name, Err: errors.Unwrap(err)}
 	}
 
 	for _, de := range dirEntries {
@@ -145,7 +145,7 @@ func LStat(f fs.FS, name string) (fs.FileInfo, error) {
 			} else {
 				fi, err := fs.Stat(f, name)
 				if err != nil {
-					err = &fs.PathError{Op: "lstat", Path: name, Err: err}
+					err = &fs.PathError{Op: "lstat", Path: name, Err: errors.Unwrap(err)}
 				}
 
 				return fi, err
