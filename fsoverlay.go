@@ -1,3 +1,4 @@
+// A package to combine multiple fs.FS implementations into a single tree.
 package fsoverlay
 
 import (
