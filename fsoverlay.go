@@ -89,14 +89,12 @@ type lstat interface {
 
 func (o Overlay) LStat(name string) (fs.FileInfo, error) {
 	for _, ofs := range o {
-		if rl, ok := ofs.(lstat); ok {
-			fi, err := rl.LStat(name)
-			if errors.Is(err, fs.ErrNotExist) {
-				continue
-			}
-
-			return fi, err
+		fi, err := LStat(ofs, name)
+		if errors.Is(err, fs.ErrNotExist) {
+			continue
 		}
+
+		return fi, err
 	}
 
 	return nil, &fs.PathError{
@@ -126,7 +124,7 @@ func (d deAsFI) Sys() any {
 	return d.DirEntry
 }
 
-func Lstat(f fs.FS, name string) (fs.FileInfo, error) {
+func LStat(f fs.FS, name string) (fs.FileInfo, error) {
 	if lf, ok := f.(lstat); ok {
 		return lf.LStat(name)
 	}
