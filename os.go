@@ -12,11 +12,11 @@ import (
 func DirFS2OS(os fs.FS) fs.FS {
 	v := reflect.ValueOf(os)
 
-	if t := v.Type(); t.PkgPath() != "os" || t.Name() != "dirFS" {
-		return os
+	if t := v.Type(); t.PkgPath() == "os" && t.Name() == "dirFS" {
+		return OS(v.String())
 	}
 
-	return OS(v.String())
+	return os
 }
 
 type OS string
