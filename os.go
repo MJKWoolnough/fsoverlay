@@ -49,7 +49,10 @@ func (o OS) LStat(name string) (fs.FileInfo, error) {
 
 	fi, err := os.Lstat(pname)
 	if err != nil {
-		err.(*os.PathError).Path = name
+		var perr *os.PathError
+		if errors.As(err, &perr) {
+			perr.Path = name
+		}
 
 		return nil, err
 	}
@@ -84,7 +87,10 @@ func (o OS) Readlink(name string) (string, error) {
 
 	link, err := os.Readlink(pname)
 	if err != nil {
-		err.(*os.PathError).Path = name
+		var perr *os.PathError
+		if errors.As(err, &perr) {
+			perr.Path = name
+		}
 
 		return "", err
 	}
