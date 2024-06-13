@@ -19,6 +19,10 @@ type resolver struct {
 }
 
 func (o Overlay) resolve(path string) (string, error) {
+	if !fs.ValidPath(path) {
+		return "", fs.ErrInvalid
+	}
+
 	r := resolver{
 		fs:                 o,
 		fullPath:           path,
