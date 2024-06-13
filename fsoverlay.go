@@ -61,6 +61,18 @@ func (o Overlay) Stat(name string) (fs.FileInfo, error) {
 	}
 }
 
+func (o Overlay) Sub(dir string) (fs.FS, error) {
+	var p Overlay
+
+	for _, ofs := range o {
+		if pfs, err := fs.Sub(ofs, dir); err == nil {
+			p = append(p, pfs)
+		}
+	}
+
+	return p, nil
+}
+
 type readLink interface {
 	Readlink(string) (string, error)
 }
