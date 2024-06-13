@@ -3,6 +3,7 @@ package fsoverlay
 import (
 	"io/fs"
 	"slices"
+	"strings"
 	"sync"
 )
 
@@ -45,4 +46,17 @@ func (m *Mount) Mount(dir string, f fs.FS) error {
 	m.sortedPoints = slices.Insert(m.sortedPoints, pos, dir)
 
 	return nil
+}
+
+func (m *Mount) resolve(path string) (fs.FS, string) {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	for _, mp := range m.sortedPoints {
+		if strings.HasPrefix(path, mp) {
+			return m.mountPoints[mp], strings.TrimPrefix(path, mp)
+		}
+	}
+
+	return m.mountPoints["."], path
 }
