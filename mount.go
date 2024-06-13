@@ -1,6 +1,7 @@
 package fsoverlay
 
 import (
+	"errors"
 	"io/fs"
 	"slices"
 	"strings"
@@ -28,6 +29,21 @@ func (m *Mount) Mount(dir string, f fs.FS) error {
 
 	m.mu.Lock()
 	defer m.mu.Unlock()
+
+	if fi, err := LStat(m, dir); err != nil {
+		var perr *fs.PathError
+		if errors.As(err, &perr) {
+			perr.Op = "mount"
+		}
+
+		return err
+	} else if !fi.IsDir() {
+		return &fs.PathError{
+			Op:   "mount",
+			Path: dir,
+			Err:  fs.ErrInvalid,
+		}
+	}
 
 	if _, ok := m.mountPoints[dir]; ok {
 		return &fs.PathError{
