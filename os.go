@@ -26,15 +26,15 @@ func (o OS) Open(name string) (fs.File, error) {
 }
 
 func (o OS) ReadFile(name string) ([]byte, error) {
-	return os.DirFS(string(o)).(fs.ReadFileFS).ReadFile(name)
+	return fs.ReadFile(os.DirFS(string(o)), name)
 }
 
 func (o OS) ReadDir(name string) ([]fs.DirEntry, error) {
-	return os.DirFS(string(o)).(fs.ReadDirFS).ReadDir(name)
+	return fs.ReadDir(os.DirFS(string(o)), name)
 }
 
 func (o OS) Stat(name string) (fs.FileInfo, error) {
-	return os.DirFS(string(o)).(fs.StatFS).Stat(name)
+	return fs.Stat(os.DirFS(string(o)), name)
 }
 
 func (o OS) LStat(name string) (fs.FileInfo, error) {
