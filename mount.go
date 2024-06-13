@@ -76,3 +76,7 @@ func (m *Mount) resolve(path string) (fs.FS, string) {
 
 	return m.mountPoints["."], path
 }
+
+func (m *Mount) Open(path string) (fs.File, error) {
+	return nil, nil
+}
